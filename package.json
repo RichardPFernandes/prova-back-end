@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js"
+    "test": "jest --coverage",
+    "test-api": "jest --coverage --testPathPattern=test/api",
+    "start": "nodemon src/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +20,8 @@
     "sequelize": "^6.37.2"
   },
   "devDependencies": {
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.0.0"
   }
 }

@@ -1,3 +1,5 @@
 /.env
 /Dockerfile
 /docker-compose.yaml
+/node_modules
+/coverage

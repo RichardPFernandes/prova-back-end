@@ -15,6 +15,7 @@ class User {
       email: {
         type: database.db.Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
       senha: {
         type: database.db.Sequelize.STRING,

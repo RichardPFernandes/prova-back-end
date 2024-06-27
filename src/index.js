@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/user", userRoutes);
 
 database.db
-  .sync({ force: true })
+  .sync()
   .then(() => {
     app.listen(3000, () => {
       console.log("Servidor rodando na porta 3000");
@@ -23,3 +23,6 @@ database.db
   .catch((error) => {
     console.error("Erro ao sincronizar o banco de dados", error);
   });
+
+
+module.exports = app;

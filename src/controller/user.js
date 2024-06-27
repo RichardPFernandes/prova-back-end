@@ -10,12 +10,9 @@ class UserController {
     if (nome === undefined || email === undefined || senha === undefined) {
       throw new Error("Nome, email e senha são obrigatórios");
     }
-
-    // Cria um hash da senha a partir do bcrypt com 10 rounds
     const senhaCriptografada = await bcrypt.hash(senha, saltRounds);
 
-    // INSERT INTO users (nome, email, senha) VALUES (nome, email, senha);
-    const user = await User.create({ nome, email, senha: senhaCriptografada });
+    const user = await User.create({ nome, email, senha: senhaCriptografada , data_criacao: new Date() });
 
     return user;
   }

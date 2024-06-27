@@ -5,9 +5,10 @@ class UserApi {
         const nome = req.body.nome
         const email = req.body.email;
         const senha = req.body.senha;
-
+        console.log(nome, email, senha)
         try {
             const user = await controller.criarUsuario(nome, email, senha);
+            console.log(user);
             return res.status(201).send(user);
         } catch (error) {
             return res.status(400).send({ error: error.message })
