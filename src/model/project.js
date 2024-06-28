@@ -21,6 +21,10 @@ class Project {
         allowNull: false,
         defaultValue: this.sequelize.Sequelize.NOW,
       },
+      id_usuario: {
+        type: this.sequelize.Sequelize.INTEGER,
+        allowNull: false,
+      },
     });
   }
 }

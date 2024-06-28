@@ -21,6 +21,10 @@ class Task {
         allowNull: false,
         defaultValue: this.sequelize.Sequelize.NOW,
       },
+      id_projeto: {
+        type: this.sequelize.Sequelize.INTEGER,
+        allowNull: false,
+      },
     });
   }
 }
