@@ -3,18 +3,33 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const saltRounds = 10;
-const JWT_SECRET_KEY = "batata";
 
 class UserController {
   async criarUsuario(nome, email, senha) {
-    if (nome === undefined || email === undefined || senha === undefined) {
-      throw new Error("Nome, email e senha são obrigatórios");
-    }
+    this.validarCampos(nome, email, senha);
+    await this.verificarEmail(email);
     const senhaCriptografada = await bcrypt.hash(senha, saltRounds);
 
     const user = await User.create({ nome, email, senha: senhaCriptografada });
 
     return user;
+  }
+
+  async alterarUsuario(id, nome, senha) {
+    const user = await this.buscarPorId(id);
+
+    user.nome = nome;
+    const senhaCriptografada = await bcrypt.hash(senha, saltRounds);
+    user.senha = senhaCriptografada;
+    user.save();
+
+    return user;
+  }
+
+  async deletarUsuario(id) {
+    const user = await this.buscarPorId(id);
+
+    user.destroy();
   }
 
   async buscarPorId(id) {
@@ -31,39 +46,22 @@ class UserController {
     return user;
   }
 
-  async alterarUsuario(id, nome, email, senha) {
-    if (
-      id === undefined ||
-      nome === undefined ||
-      email === undefined ||
-      senha === undefined
-    ) {
-      throw new Error("Id, nome, email e senha são obrigatórios");
-    }
-
-    const user = await this.buscarPorId(id);
-
-    user.nome = nome;
-    user.email = email;
-    const senhaCriptografada = await bcrypt.hash(senha, saltRounds);
-    user.senha = senhaCriptografada;
-    user.save();
-
-    return user;
-  }
-
-  async deletarUsuario(id) {
-    if (id === undefined) {
-      throw new Error("Id é obrigatório");
-    }
-
-    const user = await this.buscarPorId(id);
-
-    user.destroy();
-  }
-
   async listarUsuarios() {
     return User.findAll();
+  }
+
+  validarCampos(nome, email, senha) {
+    if (nome === undefined || email === undefined || senha === undefined) {
+      throw new Error("Nome, email e senha são obrigatórios");
+    }
+  }
+
+  async verificarEmail(email) {
+    const user = await User.findOne({ where: { email } });
+
+    if (user) {
+      throw new Error("Email já cadastrado");
+    }
   }
 
   async login(email, senha) {
@@ -83,18 +81,9 @@ class UserController {
       throw new Error("Senha inválida");
     }
 
-    const jwtToken = jwt.sign({ id: user.id }, JWT_SECRET_KEY);
+    const jwtToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
 
     return { token: jwtToken };
-  }
-
-  async validarToken(token) {
-    try {
-      const payload = jwt.verify(token, JWT_SECRET_KEY);
-      return payload;
-    } catch (error) {
-      throw new Error("Token inválido");
-    }
   }
 }
 

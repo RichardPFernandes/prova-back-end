@@ -48,7 +48,6 @@ class UserApi {
         }
     }
 
-    // Método para login
     async login(req, res) {
         try {
             const { email, senha } = req.body;
@@ -59,7 +58,6 @@ class UserApi {
         }
     }
 
-    // Método para validar o token
     async validarToken(req, res, next) {
         const token = req.headers.authorization;
 

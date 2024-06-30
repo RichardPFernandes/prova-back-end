@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest --coverage",
     "test-api": "jest --coverage --testPathPattern=test/api",
+    "test-integration": "jest --coverage --testPathPattern=test/integration",
     "start": "nodemon src/index.js"
   },
   "author": "",

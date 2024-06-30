@@ -1,46 +1,77 @@
-const controller = require('../../src/controller/user');
-const database = require('../../src/config/database');
+const controller = require("../../src/controller/user");
+const database = require("../../src/config/database");
 
-describe('User', () => {
+describe("User", () => {
+  beforeAll(async () => {
+    this.transaction = await database.db.sequelize.transaction();
+  });
 
-    beforeAll(async () => {
-        this.transaction = await database.db.sequelize.transaction();
+  afterAll(async () => {
+    await this.transaction.rollback();
+  });
+
+  afterEach(async () => {
+    await database.db.sequelaize.query("DELETE FROM usuarios", {
+      transaction: this.transaction,
     });
+  });
 
-    it('Criar usuário', async () => {
+  it("Criar usuário", async () => {
+    const user = await controller.criarUsuario(
+      "Fulano",
+      "fernandesrichard@gmail.com",
+      "123456"
+    );
 
-        const user = await controller.criarUsuario('Fulano', 'fernandesrichard@gmail.com', '123456');
-        
-        expect(user.nome).toBe('Fulano');
-        expect(user.email).toBe('fernandesrichard@gmail.com');
-        expect(user.senha).not.toBe('123456');
-    });
+    expect(user.nome).toBe("Fulano");
+    expect(user.email).toBe("fernandesrichard@gmail.com");
+    expect(user.senha).not.toBe("123456");
+  });
 
-    it('Alterar usuário', async () => {
+  it("Alterar usuário", async () => {
+    const user = await controller.criarUsuario(
+      "Fulano",
+      "fernandes312richard@gmail.com",
+      "123456"
+    );
 
-        const user = await controller.criarUsuario('Fulano', 'fernandes312richard@gmail.com', '123456');
+    const userAlterado = await controller.alterarUsuario(
+      user.id,
+      "Fulano de Tal",
+      "fernandes312richard@gmail.com",
+      "123456"
+    );
 
-        const userAlterado = await controller.alterarUsuario(user.id, 'Fulano de Tal', 'fernandes312richard@gmail.com', '123456');
+    expect(userAlterado.nome).toBe("Fulano de Tal");
+  });
 
-        expect(userAlterado.nome).toBe('Fulano de Tal');
+  it("Deletar usuário", async () => {
+    const user = await controller.criarUsuario(
+      "Fulano",
+      "fernandes324richard@gmail.com",
+      "123456"
+    );
 
-    });
+    await controller.deletarUsuario(user.id);
 
-    it('Deletar usuário', async () => {
+    try {
+      await controller.buscarPorId(user.id);
+    } catch (error) {
+      expect(error.message).toBe("Usuário não encontrado");
+    }
+  });
 
-        const user = await controller.criarUsuario('Fulano', 'fernandes324richard@gmail.com', '123456');
+  it("Login usuário", async () => {
+    const user = await controller.criarUsuario(
+      "Fulano",
+      "fernandes324richard@gmail.com",
+      "123456"
+    );
 
-        await controller.deletarUsuario(user.id);
+    const userLogado = await controller.login(user.email, "123456");
 
-        try {
-            await controller.buscarPorId(user.id);
-        } catch (error) {
-            expect(error.message).toBe('Usuário não encontrado');
-        }
-
-    });
-
-
-
-
+    expect(userLogado.nome).toBe("Fulano");
+    expect(userLogado.email).toBe("fernandes324richard@gmail.com");
+    expect(userLogado.senha).not.toBe("123456");
+  });
 });
