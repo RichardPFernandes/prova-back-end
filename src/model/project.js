@@ -4,29 +4,29 @@ class Project {
   constructor() {
     this.model = database.db.define("project", {
       id: {
-        type: this.sequelize.Sequelize.INTEGER,
+        type: database.db.Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
       nome: {
-        type: this.sequelize.Sequelize.STRING,
+        type: database.db.Sequelize.STRING,
         allowNull: false,
       },
       descricao: {
-        type: this.sequelize.Sequelize.STRING,
+        type: database.db.Sequelize.STRING,
         allowNull: false,
       },
       data_criacao: {
-        type: this.sequelize.Sequelize.DATE,
+        type: database.db.Sequelize.DATE,
         allowNull: false,
-        defaultValue: this.sequelize.Sequelize.NOW,
+        defaultValue: database.db.Sequelize.NOW,
       },
       id_usuario: {
-        type: this.sequelize.Sequelize.INTEGER,
+        type: database.db.Sequelize.INTEGER,
         allowNull: false,
       },
     });
   }
 }
 
-module.exports = new Project().model;
+module.exports = (new Project()).model;

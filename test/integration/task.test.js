@@ -4,26 +4,31 @@ const Project = require("../../src/model/project");
 const database = require("../../src/config/database");
 
 describe("Task", () => {
+  let user;
+  let project;
   beforeAll(async () => {
-    this.transaction = await database.db.sequelize.transaction();
+    this.transaction = await database.db.transaction();
 
-    await User.Create(
+    user = await User.create(
       {
         nome: "Fulano",
-        email: "fernandesrichard312@gmail.com",
+        email: "testetask@gmail.com",
         senha: "123456",
       },
       this.transaction
     );
-
-    await Project.Create(
-      {
-        nome: "Projeto Teste",
-        descricao: "Projeto de teste",
-        id_usuario: 0,
-      },
-      this.transaction
-    );
+    try {
+      project = await Project.create(
+        {
+          nome: "Projeto Teste Task",
+          descricao: "TESTE TASK",
+          id_usuario: user.id
+        },
+        this.transaction
+      );
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   afterAll(async () => {
@@ -31,17 +36,18 @@ describe("Task", () => {
   });
 
   afterEach(async () => {
-    await database.db.sequelaize.query("DELETE FROM tarefas", {
+    await database.db.query("DELETE FROM tasks", {
       transaction: this.transaction,
     });
   });
+
 
   it("Criar Task", async () => {
     const task = await controller.criarTask(
       "Task Teste",
       "Task de teste",
-      0,
-      0
+      project.id,
+      user.id
     );
 
     expect(task.nome).toBe("Task Teste");
@@ -51,16 +57,16 @@ describe("Task", () => {
     const task = await controller.criarTask(
       "Task Teste",
       "Task de teste",
-      0,
-      0
+      project.id,
+      user.id
     );
 
     const taskAlterada = await controller.alterarTask(
       task.id,
       "Task Alterada",
       "Task de teste",
-      0,
-      0
+      project.id,
+      user.id,
     );
 
     expect(taskAlterada.nome).toBe("Task Alterada");
@@ -70,8 +76,8 @@ describe("Task", () => {
     const task = await controller.criarTask(
       "Task Teste",
       "Task de teste",
-      0,
-      0
+      project.id,
+      user.id
     );
 
     await controller.deletarTask(task.id, 0);

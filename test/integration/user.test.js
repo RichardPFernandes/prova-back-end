@@ -3,7 +3,7 @@ const database = require("../../src/config/database");
 
 describe("User", () => {
   beforeAll(async () => {
-    this.transaction = await database.db.sequelize.transaction();
+    this.transaction = await database.db.transaction();
   });
 
   afterAll(async () => {
@@ -11,10 +11,12 @@ describe("User", () => {
   });
 
   afterEach(async () => {
-    await database.db.sequelaize.query("DELETE FROM usuarios", {
+    await database.db.query("DELETE FROM users", {
       transaction: this.transaction,
     });
   });
+  
+
 
   it("Criar usuário", async () => {
     const user = await controller.criarUsuario(
@@ -64,14 +66,14 @@ describe("User", () => {
   it("Login usuário", async () => {
     const user = await controller.criarUsuario(
       "Fulano",
-      "fernandes324richard@gmail.com",
+      "fernandes344richard@gmail.com",
       "123456"
     );
 
     const userLogado = await controller.login(user.email, "123456");
 
     expect(userLogado.nome).toBe("Fulano");
-    expect(userLogado.email).toBe("fernandes324richard@gmail.com");
+    expect(userLogado.email).toBe("fernandes344richard@gmail.com");
     expect(userLogado.senha).not.toBe("123456");
   });
 });

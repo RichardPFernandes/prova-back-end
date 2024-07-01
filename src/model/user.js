@@ -30,4 +30,4 @@ class User {
   }
 }
 
-module.exports = new User().model;
+module.exports = (new User()).model;

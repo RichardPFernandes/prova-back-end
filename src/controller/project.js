@@ -5,14 +5,21 @@ class ProjectController {
   async criarProjeto(nome, descricao, idUsuario) {
     this.validaCampos(nome, descricao);
     UserController.buscarPorId(idUsuario);
-
-    return await Project.create({ nome, descricao, id_usuario: idUsuario });
+    const projeto = await Project.create({
+      nome,
+      descricao,
+      id_usuario: idUsuario,
+    });
+    return projeto;
   }
 
   async alterarProjeto(id, nome, descricao, idUsuario) {
     this.validaCampos(nome, descricao);
-    this.buscarProjeto(id, idUsuario);
-    return await Project.update({ nome, descricao }, { where: { id } });
+    const projeto = await this.buscarProjeto(id, idUsuario);
+    projeto.nome = nome;
+    projeto.descricao = descricao;
+    await projeto.save();
+    return projeto;
   }
 
   async deletarProjeto(id, idUsuario) {

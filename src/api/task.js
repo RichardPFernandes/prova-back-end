@@ -24,12 +24,14 @@ class TaskApi {
     const idUsuario = req.userId;
     const status = req.body.status;
     const dataConclusao = req.body.dataConclusao;
+    const idProjeto = req.body.idProjeto;
 
     try {
       const task = await controller.alterarTask(
         Number(id),
         titulo,
         descricao,
+        idProjeto,
         idUsuario,
         status,
         dataConclusao

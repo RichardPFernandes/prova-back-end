@@ -8,6 +8,6 @@ router.use(auth.handle);
 router.post("/", TaskApi.criarTask);
 router.put("/:id", TaskApi.alterarTask);
 router.delete("/:id", TaskApi.deletarTask);
-router.get("/", TaskApi.listarTas);
+router.get("/", TaskApi.listarTasks);
 
 module.exports = router;

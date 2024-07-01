@@ -2,6 +2,9 @@ const express = require("express");
 const database = require("./config/database");
 const cors = require("cors");
 const userRoutes = require("./routes/user");
+const projectRoutes = require("./routes/project");
+const taskRoutes = require("./routes/task");
+require("dotenv").config();
 
 const app = express();
 app.use(cors());
@@ -12,9 +15,11 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/project", projectRoutes);
+app.use("/api/v1/task", taskRoutes);
 
 database.db
-  .sync()
+  .sync({force: true})
   .then(() => {
     app.listen(3000, () => {
       console.log("Servidor rodando na porta 3000");
