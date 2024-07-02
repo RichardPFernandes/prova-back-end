@@ -6,7 +6,7 @@ class Database {
   }
 
   init() {
-    this.db = new Sequelize("provajackson", "postgres", "123456", {
+    this.db = new Sequelize("provajackson", "postgres", "1234", {
       host: "localhost",
       dialect: "postgres",
     });

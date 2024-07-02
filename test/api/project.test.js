@@ -2,17 +2,27 @@ const app = require("../../src/index");
 const request = require("supertest");
 
 describe("Project", () => {
-  it("Criar projeto", async () => {
-    const usuario = await request(app).post("/api/v1/user").send({
+
+  beforeAll(async () => {
+    await request(app).post("/api/v1/user").send({
       nome: "Fulano",
-      email: "fernandesrichard312@gmail.com",
+      email: "fernandesrichardtesteprojeto@gmail.com",
       senha: "123456",
     });
+
+    const response = await request(app).post("/api/v1/user/login").send({
+      email: "fernandesrichardtesteprojeto@gmail.com",
+      senha: "123456",
+    });
+
+    this.token = response.body.token;
+  });
+
+  it("Criar projeto", async () => {
     const response = await request(app).post("/api/v1/project").send({
       nome: "Projeto Teste",
       descricao: "Projeto de teste",
-      idUsuario: usuario.body.id,
-    });
+    }).set("Authorization", `Bearer ${this.token}`);
     expect(response.status).toBe(201);
     expect(response.body.nome).toBe("Projeto Teste");
   });
@@ -20,32 +30,33 @@ describe("Project", () => {
     const response = await request(app).post("/api/v1/project").send({
       nome: "Projeto Teste",
       descricao: "Projeto de teste",
-      idUsuario: 1,
-    });
+    }).set("Authorization", `Bearer ${this.token}`);
 
     const responseAlterado = await request(app)
       .put(`/api/v1/project/${response.body.id}`)
       .send({
-        nome: "Fulano de Tal",
-        email: "fernandes312richard@gmail.com",
-        senha: "123456",
-      });
+        nome: "Projeto Alterado",
+        descricao: "Projeto de teste",
+      }).set("Authorization", `Bearer ${this.token}`);
 
     expect(responseAlterado.status).toBe(200);
-    expect(responseAlterado.body.nome).toBe("Fulano de Tal");
+    expect(responseAlterado.body.nome).toBe("Projeto Alterado");
   });
   it("Deletar projeto", async () => {
     const response = await request(app).post("/api/v1/project").send({
-      nome: "Fulano",
-      email: "fernandes324richard@gmail.com",
-      senha: "123456",
-    });
+      nome: "Projeto Teste",
+      descricao: "Projeto de teste",
+    }).set("Authorization", `Bearer ${this.token}`);
 
-    console.log(response.body);
     const responseDeletado = await request(app).delete(
       `/api/v1/project/${response.body.id}`
-    );
+    ).set("Authorization", `Bearer ${this.token}`);
 
     expect(responseDeletado.status).toBe(204);
+  });
+
+  it("Listar projetos", async () => {
+    const response = await request(app).get("/api/v1/project").set("Authorization", `Bearer ${this.token}`);
+    expect(response.status).toBe(200);
   });
 });

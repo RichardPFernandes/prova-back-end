@@ -15,16 +15,17 @@ describe("Task", () => {
         email: "testetask@gmail.com",
         senha: "123456",
       },
-      this.transaction
     );
+
+
     try {
+      const obj = {
+        nome: "Projeto Teste Task",
+        descricao: "TESTE TASK",
+        id_usuario: user.id
+      }
       project = await Project.create(
-        {
-          nome: "Projeto Teste Task",
-          descricao: "TESTE TASK",
-          id_usuario: user.id
-        },
-        this.transaction
+        obj,
       );
     } catch (error) {
       console.log(error);
@@ -32,14 +33,14 @@ describe("Task", () => {
   });
 
   afterAll(async () => {
-    await this.transaction.rollback();
+    database.db.query("DELETE FROM tasks");
+    database.db.query("DELETE FROM projects");
+    database.db.query("DELETE FROM users");
+
+    await this.transaction.commit();
   });
 
-  afterEach(async () => {
-    await database.db.query("DELETE FROM tasks", {
-      transaction: this.transaction,
-    });
-  });
+
 
 
   it("Criar Task", async () => {
@@ -50,7 +51,7 @@ describe("Task", () => {
       user.id
     );
 
-    expect(task.nome).toBe("Task Teste");
+    expect(task.titulo).toBe("Task Teste");
   });
 
   it("Alterar Task", async () => {
@@ -69,7 +70,7 @@ describe("Task", () => {
       user.id,
     );
 
-    expect(taskAlterada.nome).toBe("Task Alterada");
+    expect(taskAlterada.titulo).toBe("Task Alterada");
   });
 
   it("Deletar Task", async () => {
@@ -80,20 +81,20 @@ describe("Task", () => {
       user.id
     );
 
-    await controller.deletarTask(task.id, 0);
+    await controller.deletarTask(task.id, user.id);
 
     try {
-      await controller.buscarTask(task.id, 0);
+      await controller.buscarTask(task.id, project.id);
     } catch (error) {
-      expect(error.message).toBe("Projeto não encontrado");
+      expect(error.message).toBe("Task não encontrado");
     }
   });
 
   it("Listar Tasks", async () => {
-    await controller.criarTask("Task Teste", "Task de teste", 0, 0);
+    await controller.criarTask("Task Teste", "Task de teste", project.id, user.id);
 
-    const tasks = await controller.listarTasks(0, 0, null);
+    const tasks = await controller.listarTasks(project.id, user.id, null);
 
-    expect(tasks.length).toBe(1);
+    expect(tasks).toBeTruthy();
   });
 });

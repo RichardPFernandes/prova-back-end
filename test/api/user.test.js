@@ -1,8 +1,22 @@
 const app = require("../../src/index");
-const database = require("../../src/config/database");
 const request = require("supertest");
 
 describe("User", () => {
+  beforeAll(async () => {
+    await request(app).post("/api/v1/user").send({
+      nome: "Fulano",
+      email: "fernandesrichardtestelogin@gmail.com",
+      senha: "123456",
+    });
+
+    const response = await request(app).post("/api/v1/user/login").send({
+      email: "fernandesrichardtestelogin@gmail.com",
+      senha: "123456",
+    });
+
+    this.token = response.body.token;
+    
+  });
   it("Criar usuário", async () => {
     const response = await request(app).post("/api/v1/user").send({
       nome: "Fulano",
@@ -13,18 +27,21 @@ describe("User", () => {
     expect(response.body.nome).toBe("Fulano");
     expect(response.body.email).toBe("fernandesrichard@gmail.com");
   });
+  
   it("Alterar usuário", async () => {
+    // use this.token
     const response = await request(app).post("/api/v1/user").send({
       nome: "Fulano",
-      email: "fernandes312richard@gmail.com",
+      email: "fernandesrichard312@gmail.com",
       senha: "123456",
-    });
+    })
 
     const responseAlterado = await request(app)
       .put(`/api/v1/user/${response.body.id}`)
+      .set("Authorization", `Bearer ${this.token}`)
       .send({
         nome: "Fulano de Tal",
-        email: "fernandes312richard@gmail.com",
+        email: "fernandesrichard312@gmail.com",
         senha: "123456",
       });
 
@@ -38,11 +55,15 @@ describe("User", () => {
       senha: "123456",
     });
 
-    console.log(response.body);
-    const responseDeletado = await request(app).delete(
-      `/api/v1/user/${response.body.id}`
-    );
+    const responseDeletado = await request(app)
+      .delete(`/api/v1/user/${response.body.id}`)
+      .set("Authorization", `Bearer ${this.token}`);
+  
 
     expect(responseDeletado.status).toBe(204);
+  });
+  it("Deletar Usuário inexistente", async () => {
+    const response = await request(app).delete(`/api/v1/user/999`).set("Authorization", `Bearer ${this.token}`);
+    expect(response.status).toBe(400);
   });
 });

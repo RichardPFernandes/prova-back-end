@@ -11,6 +11,7 @@ class Project {
       nome: {
         type: database.db.Sequelize.STRING,
         allowNull: false,
+        length: 100,
       },
       descricao: {
         type: database.db.Sequelize.STRING,

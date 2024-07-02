@@ -12,18 +12,15 @@ describe("Project", () => {
         nome: "Fulano",
         email: "testeproject@gmail.com",
         senha: "123456",
-      },
-      this.transaction
+      }
     );
   });
-  afterAll(async () => {
-    await this.transaction.rollback();
-  });
 
-  afterEach(async () => {
-    await database.db.query("DELETE FROM projects", {
-      transaction: this.transaction,
-    })
+  afterAll(async () => {
+    database.db.query("DELETE FROM projects");
+    database.db.query("DELETE FROM users");
+
+    await this.transaction.commit();
   });
 
   
@@ -62,19 +59,20 @@ describe("Project", () => {
     );
 
     await controller.deletarProjeto(projeto.id, user.id);
-
-    try {
+  
+    expect(async () => {
       await controller.buscarProjeto(projeto.id, user.id);
-    } catch (error) {
-      expect(error.message).toBe("Projeto não encontrado");
     }
+    ).rejects.toThrow("Projeto não encontrado");
+
   });
 
   it("Listar Projetos", async () => {
-    await controller.criarProjeto("Projeto Teste", "Projeto de teste", user.id);
+      await controller.criarProjeto("Projeto Teste", "Projeto de teste", user.id);
 
     const projetos = await controller.listarProjetos(user.id);
 
     expect(projetos).toBeTruthy();
+
   });
 });

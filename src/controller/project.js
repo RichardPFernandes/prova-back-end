@@ -4,7 +4,7 @@ const UserController = require("./user");
 class ProjectController {
   async criarProjeto(nome, descricao, idUsuario) {
     this.validaCampos(nome, descricao);
-    UserController.buscarPorId(idUsuario);
+    await UserController.buscarPorId(idUsuario);
     const projeto = await Project.create({
       nome,
       descricao,
@@ -23,20 +23,26 @@ class ProjectController {
   }
 
   async deletarProjeto(id, idUsuario) {
-    this.buscarProjeto(id, idUsuario);
-    await Project.destroy({ where: { id } });
+    const projeto = await this.buscarProjeto(id, idUsuario);
+    await projeto.destroy();
   }
 
   async listarProjetos(idUsuario) {
     if (idUsuario === undefined) {
       throw new Error("Id do usuário é obrigatório");
     }
-    return await Project.findAll({ where: { id_usuario: idUsuario } });
+
+    const projetos = await Project.findAll({ where: { id_usuario: idUsuario } })
+
+    if (!projetos) {
+      throw new Error("Projetos não encontrados");
+    }
+    return projetos;
   }
 
   async buscarProjeto(id, idUsuario) {
     const projeto = await Project.findOne({
-      where: { id, id_usuario: idUsuario },
+      where: { id: id, id_usuario: idUsuario },
     });
     if (!projeto) {
       throw new Error("Projeto não encontrado");
@@ -45,7 +51,7 @@ class ProjectController {
   }
 
   validaCampos(nome, descricao) {
-    if (nome === undefined || descricao === undefined) {
+    if (nome === undefined || descricao === undefined || nome === "" || descricao === "") {
       throw new Error("Nome e descrição são obrigatórios");
     }
 

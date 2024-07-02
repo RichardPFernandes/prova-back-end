@@ -51,7 +51,7 @@ class UserController {
   }
 
   validarCampos(nome, email, senha) {
-    if (nome === undefined || email === undefined || senha === undefined) {
+    if (nome === undefined || email === undefined || senha === undefined || nome === "" || email === "" || senha === "") {
       throw new Error("Nome, email e senha são obrigatórios");
     }
   }

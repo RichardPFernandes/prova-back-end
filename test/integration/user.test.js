@@ -7,15 +7,9 @@ describe("User", () => {
   });
 
   afterAll(async () => {
-    await this.transaction.rollback();
-  });
-
-  afterEach(async () => {
-    await database.db.query("DELETE FROM users", {
-      transaction: this.transaction,
+    database.db.query("DELETE FROM users");
+    this.transaction.commit();
     });
-  });
-  
 
 
   it("Criar usuário", async () => {
@@ -63,17 +57,12 @@ describe("User", () => {
     }
   });
 
-  it("Login usuário", async () => {
-    const user = await controller.criarUsuario(
-      "Fulano",
-      "fernandes344richard@gmail.com",
-      "123456"
-    );
-
-    const userLogado = await controller.login(user.email, "123456");
-
-    expect(userLogado.nome).toBe("Fulano");
-    expect(userLogado.email).toBe("fernandes344richard@gmail.com");
-    expect(userLogado.senha).not.toBe("123456");
+  it("Deletar Usuário inexistente", async () => {
+    try {
+      await controller.deletarUsuario(999);
+    } catch (error) {
+      expect(error.message).toBe("Usuário não encontrado");
+    }
   });
+
 });

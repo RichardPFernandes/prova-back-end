@@ -3,7 +3,7 @@ const ProjectController = require("./project");
 class TaskController {
   async criarTask(titulo, descricao, idProjeto, idUsuario) {
     this.validaCampos(titulo, descricao);
-    ProjectController.buscarProjeto(idProjeto, idUsuario);
+    await ProjectController.buscarProjeto(idProjeto, idUsuario);
     const task = await Task.create({
       titulo,
       descricao,
@@ -14,7 +14,7 @@ class TaskController {
 
   async alterarTask(id, titulo, descricao, idProjeto, idUsuario, status, dataConclusao) {
     this.validaCampos(titulo, descricao);
-    ProjectController.buscarProjeto(idProjeto, idUsuario);
+    await ProjectController.buscarProjeto(idProjeto, idUsuario);
     const task = await this.buscarTask(id, idProjeto);
     task.titulo = titulo;
     task.descricao = descricao;
@@ -26,11 +26,11 @@ class TaskController {
 
   async deletarTask(id, idUsuario) {
     
-    const task = Task.findOne({ where: { id } });
+    const task = await Task.findOne({ where: { id } });
     if (!task) {
       throw new Error("Task não encontrada");
     }
-    ProjectController.buscarProjeto(task.id_projeto, idUsuario);
+    await ProjectController.buscarProjeto(task.id_projeto, idUsuario);
     await Task.destroy({ where: { id } });
   }
 
@@ -38,13 +38,14 @@ class TaskController {
     if (idUsuario === undefined || idProjeto === undefined) {
       throw new Error("Id do usuário é obrigatório");
     }
+    await ProjectController.buscarProjeto(idProjeto, idUsuario);
     if (status) {
       return await Task.findAll({
-        where: { id_projeto: idProjeto, id_usuario: idUsuario, status },
+        where: { id_projeto: idProjeto, status },
       });
     }
     return await Task.findAll({
-      where: { id_projeto: idProjeto, id_usuario: idUsuario },
+      where: { id_projeto: idProjeto },
     });
   }
 
@@ -60,8 +61,12 @@ class TaskController {
   }
 
   validaCampos(titulo, descricao) {
-    if (titulo === undefined || descricao === undefined) {
+    if (titulo === undefined || descricao === undefined || titulo === "" || descricao === "") {
       throw new Error("Titulo e Descrição são obrigatórios");
+    }
+
+    if (titulo.length > 100) {
+      throw new Error("Titulo deve ter no máximo 100 caracteres");
     }
   }
 }
