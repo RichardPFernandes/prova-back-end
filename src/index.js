@@ -19,9 +19,8 @@ app.use("/api/v1/project", projectRoutes);
 app.use("/api/v1/task", taskRoutes);
 
 
-
 database.db
-  .sync()
+  .sync({ force: process.env.NODE_ENV === "test" ? false : true })
   .then(() => {
     if (process.env.NODE_ENV !== "test") {
       app.listen(3000, () => {
